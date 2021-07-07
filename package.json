@@ -1,0 +1,37 @@
+{
+  "name": "dinamic",
+  "version": "1.0.0",
+  "description": "Admin Panel",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ashok",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.18.3",
+    "compress-images": "^1.5.8",
+    "cors": "^2.8.5",
+    "email-existence": "^0.1.6",
+    "email-verify": "^0.2.1",
+    "express": "^4.16.4",
+    "file-system": "^2.2.2",
+    "googleapis": "^39.2.0",
+    "gulp": "^4.0.2",
+    "image-size": "^0.8.3",
+    "instamojo-nodejs": "0.0.5",
+    "jsonwebtoken": "^8.4.0",
+    "moment": "^2.27.0",
+    "moment-parseplus": "^1.1.6",
+    "mongoose": "^5.3.13",
+    "morgan": "^1.9.1",
+    "nodemailer": "^5.1.1",
+    "nodemon": "^2.0.7",
+    "razorpay": "^2.0.5",
+    "request": "^2.88.0",
+    "sharp": "^0.23.1",
+    "twilio": "^3.32.0",
+    "urlencode": "^1.1.0"
+  }
+}

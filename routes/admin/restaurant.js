@@ -6,6 +6,8 @@ const valet = require("../../models/valet");
 const gateway = require("../../models/pay_gateway_details");
 const themes = require("../../models/themes");
 var moment = require('moment');
+const fs = require('fs');
+const path = require('path');
 
 router.get("/list", function (req, res) {
     admin.findOne({ _id: mongoose.Types.ObjectId(req.id) }, function (err, response) {
@@ -57,6 +59,31 @@ router.get("/list", function (req, res) {
         }
     });
 });
+
+// router.post("/add", (req, res) => {
+//     admin.findOne({ _id: mongoose.Types.ObjectId(req.id) }, function (err, response) {
+//         if (!err && response) {
+//             restaurant.findOne({ name: req.body.name }, function (err, response) {
+//                 if (!err && !response) {
+//                     restaurant.create(req.body, function (err, response) {
+//                         if (!err && response) {
+//                             res.json({ status: true });
+//                         }
+//                         else {
+//                             res.json({ status: false, error: err, message: "Unable to add" });
+//                         }
+//                     });
+//                 }
+//                 else {
+//                     res.json({ status: false, error: err, message: "Restaurant name already exist" });
+//                 }
+//             });
+//         }
+//         else {
+//             res.json({ status: false, error: err, message: "Invalid User" });
+//         }
+//     });
+// });
 
 router.post("/add", (req, res) => {
     admin.findOne({ _id: mongoose.Types.ObjectId(req.id) }, function (err, response) {
@@ -203,19 +230,19 @@ router.post("/paymentgateway/add", (req, res) => {
 
 });
 
-router.post("/addTheme", (req, res) => {
-    themes.findOne({ pos_rest_id: req.body.pos_rest_id }, function (err, response) {
+router.post("/addTheme", async (req, res) => {
+    await themes.findOne({ pos_rest_id: req.body.pos_rest_id }, async function (err, response) {
         if (!err && response) {
-            themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: req.body }, function (err, response) {
+            await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: req.body }, function (err, response) {
                 if (!err && response) {
-                    res.json({ status: true });
+                    return res.json({ status: true });
                 } else {
-                    res.json({ status: false, error: err, message: "Unable to create theme" });
+                    return res.json({ status: false, error: err, message: "Unable to create theme" });
                 }
             })
         } else {
-            themes.create(req.body, function (err, response) {
-                console.log('response:', response);
+            await themes.create(req.body, function (err, response) {
+                console.log('req add new theme: ', req.body);
                 if (!err && response) {
                     res.json({ status: true });
                 } else {
@@ -223,8 +250,161 @@ router.post("/addTheme", (req, res) => {
                 }
             });
         }
+    });
+})
+
+router.post("/addHomePageTheme", (req, res) => {
+    themes.findOne({ pos_rest_id: req.body.pos_rest_id }, async (err, response) => {
+        if (!err && response) {
+            let homepageImageArray = req.files.homepageImages;
+            let homepageImages;
+            let uploadPath;
+            let filePath;
+            let fileType;
+            if(!Array.isArray(req.files.homepageImages)){
+                let newArr = [];
+                newArr.push(req.files.homepageImages);
+                homepageImageArray = newArr;
+            }
+            for (let i = 0; i < homepageImageArray.length; i++) {
+                homepageImages = homepageImageArray[i];
+                fileType = homepageImages.mimetype.split("/");
+                uploadPath = process.cwd() + '/uploads/' + req.body.pos_rest_id;
+                if (homepageImages.name === 'billImage') {
+                    filePath = '/uploads/' + req.body.pos_rest_id + '/' + homepageImages.name + '.' + fileType[1];
+                    await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { 'homepage.billImage': filePath } }, (err, billResponse) => {
+                        if (!err && billResponse) {
+                            fs.promises.mkdir(uploadPath, { recursive: true });
+                            homepageImages.mv(uploadPath + '/' + homepageImages.name + '.' + fileType[1]);
+                        } else { }
+                    });
+                }
+                if (homepageImages.name === 'helpImage') {
+                    filePath = '/uploads/' + req.body.pos_rest_id + '/' + homepageImages.name + '.' + fileType[1];
+                    await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { 'homepage.helpImage': filePath } }, (err, helpResponse) => {
+                        if (!err && helpResponse) {
+                            fs.promises.mkdir(uploadPath, { recursive: true });
+                            homepageImages.mv(uploadPath + '/' + homepageImages.name + '.' + fileType[1]);
+                        } else { }
+                    });
+                }
+                if (homepageImages.name === 'vehicleImage') {
+                    filePath = '/uploads/' + req.body.pos_rest_id + '/' + homepageImages.name + '.' + fileType[1];
+                    await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { 'homepage.vehicleImage': filePath } }, (err, vehicleResponse) => {
+                        if (!err && vehicleResponse) {
+                            fs.promises.mkdir(uploadPath, { recursive: true });
+                            homepageImages.mv(uploadPath + '/' + homepageImages.name + '.' + fileType[1]);
+                        } else { }
+                    });
+                }
+                if (homepageImages.name === 'offerImage') {
+                    filePath = '/uploads/' + req.body.pos_rest_id + '/' + homepageImages.name + '.' + fileType[1];
+                    await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { 'homepage.offerImage': filePath } }, (err, offerResponse) => {
+                        if (!err && offerResponse) {
+                            fs.promises.mkdir(uploadPath, { recursive: true });
+                            homepageImages.mv(uploadPath + '/' + homepageImages.name + '.' + fileType[1]);
+                        } else { }
+                    });
+                }
+                if (homepageImages.name === 'exitImage') {
+                    filePath = '/uploads/' + req.body.pos_rest_id + '/' + homepageImages.name + '.' + fileType[1];
+                    await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { 'homepage.exitImage': filePath } }, (err, exitResponse) => {
+                        if (!err && exitResponse) {
+                            fs.promises.mkdir(uploadPath, { recursive: true });
+                            homepageImages.mv(uploadPath + '/' + homepageImages.name + '.' + fileType[1]);
+                        } else { }
+                    });
+                }
+
+            }
+            // await themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: { homepage: req.body } }, (err, response) => {
+            //     if(!err && response) {
+            //         res.json({ status: 'success', uploadedImages: homepageImageArray.length });
+            //     } else {
+            //         res.json({ status: false, error: err, message: "No Record Found" });
+            //     }
+            // })
+            res.json({ status: 'success', uploadedImages: homepageImageArray.length });
+
+        } else {
+            res.json({ status: false, error: err, message: "No Record Found" });
+        }
     })
 });
+
+// let homepageImages;
+// let uploadPath;
+
+// if (!req.files || Object.keys(req.files).length === 0) {
+//     return res.status(400).send('No files were uploaded.');
+// }
+
+// console.log('files', req.files.homepageImages[0]);
+// console.log('fileslength', req.files.homepageImages.length);
+// for (let i = 0; i < req.files.homepageImages.length; i++) {
+//     homepageImages = req.files.homepageImages[i];
+//     uploadPath = process.cwd() + '/uploads/' + req.body.pos_rest_id;
+//     // console.log('upload path:', uploadPath)
+//     console.log('homepageImages: ', homepageImages)
+//     await fs.promises.mkdir(uploadPath, { recursive: true });
+//     homepageImages.mv(uploadPath + '/' + homepageImages.name);
+// }
+// res.send('File uploaded!');
+
+
+// if (req.files) {
+//     let homepageImages;
+//     let uploadPath;
+//     for (let i = 0; i < req.files.homepageImages.length; i++) {
+//         homepageImages = req.files.homepageImages[i];
+//         uploadPath = process.cwd() + '/uploads/' + req.body.pos_rest_id;
+//         await fs.promises.mkdir(uploadPath, { recursive: true });
+//         homepageImages.mv(uploadPath + '/' + homepageImages.name);
+//     }
+//     res.json({ status: 'success', uploadedImages: req.files.homepageImages.length });
+// }
+
+// if (req.body && !req.files) {
+//     themes.findOne({ pos_rest_id: req.body.pos_rest_id }, function (err, response) {
+//         if (!err && response) {
+//             themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: req.body }, function (err, response) {
+//                 if (!err && response) {
+//                     return res.json({ status: true });
+//                 } else {
+//                     return res.json({ status: false, error: err, message: "Unable to create theme" });
+//                 }
+//             })
+//         } else {
+//             return res.json({ status: false, error: err, message: "UnRegistered Restaurant" });
+//         }
+//     });
+
+// }
+// next();
+
+// themes.findOne({ pos_rest_id: req.body.pos_rest_id }, function (err, response) {
+//     if (!err && response) {
+//         themes.findOneAndUpdate({ pos_rest_id: req.body.pos_rest_id }, { $set: req.body }, function (err, response) {
+//             if (!err && response) {
+//                 res.json({ status: true });
+//             } else {
+//                 res.json({ status: false, error: err, message: "Unable to create theme" });
+//             }
+//         })
+//     } else {
+//             themes.create(req.body, function (err, response) {
+//                 console.log('response:', response);
+//                 if (!err && response) {
+//                     res.json({ status: true });
+//                 } else {
+//                     res.json({ status: false, error: err, message: "Unable to create theme" });
+//                 }
+//             });
+//         }
+//     })
+
+
+
 
 router.post("/getTheme", (req, res) => {
     themes.findOne({ pos_rest_id: req.body.pos_rest_id }, function (err, response) {

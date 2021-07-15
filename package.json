@@ -16,6 +16,7 @@
     "email-existence": "^0.1.6",
     "email-verify": "^0.2.1",
     "express": "^4.16.4",
+    "express-fileupload": "^1.2.1",
     "file-system": "^2.2.2",
     "googleapis": "^39.2.0",
     "gulp": "^4.0.2",
